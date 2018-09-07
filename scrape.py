@@ -1,6 +1,8 @@
 """
 TODO Split up multiple observers
 """
+from __future__ import (division, print_function, absolute_import,
+                        unicode_literals)
 
 from bs4 import BeautifulSoup
 import urllib
@@ -57,6 +59,8 @@ def parse_address(address):
 
     rows = soup.find_all("tr")
     year = int(rows[0].find_all("td")[0].get_text())
+    N = len(rows[0].find_all("td"))
+    clay_has_cassegrain = True if N == 21 else False
     for i,row in enumerate(rows):
         items = row.find_all("td")
         try:
@@ -67,14 +71,23 @@ def parse_address(address):
         dates.append(date)
         dfracs.append(dark_frac)
         add_line(baade, items[3], items[4], items[5:9])
-        add_line(clay,  items[10], items[11],items[12:14])
-        add_line(dupont,items[15], items[15],[items[16]])
-        add_line(swope, items[18], items[18],[items[19]])
+        if clay_has_cassegrain:
+            add_line(clay,  items[10], items[11],items[12:15])
+            add_line(dupont,items[16], items[16],[items[17]])
+            add_line(swope, items[19], items[19],[items[20]])
+        else:
+            add_line(clay,  items[10], items[11],items[12:14])
+            add_line(dupont,items[15], items[15],[items[16]])
+            add_line(swope, items[18], items[18],[items[19]])
     return dates, dfracs, baade, clay, dupont, swope
 
 if __name__=="__main__":
-    addresses = ["https://schedule.obs.carnegiescience.edu/2017/sch2017_{:02}.html".format(num)
-                 for num in range(7,13)]
+    #addresses = ["https://schedule.obs.carnegiescience.edu/2017/sch2017_{:02}.html".format(num)
+    #             for num in range(1,13)]
+    addresses = ["https://schedule.obs.carnegiescience.edu/2018/sch2018_{:02}.html".format(num)
+                 for num in range(1,13)]
+    #addresses += ["https://schedule.obs.carnegiescience.edu/2017/sch2017_{:02}.html".format(num)
+    #             for num in range(1,8)]
     
     dates  = []
     dfracs = []
