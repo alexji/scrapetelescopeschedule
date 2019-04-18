@@ -38,7 +38,7 @@ def add_line(prev, institution, observer, instruments):
         institution = prev[-1][0]
     if observer == '"':
         observer = prev[-1][1]
-    if '"' in instruments:
+    if '"' in instruments or u"\u201c" in instruments:
         instruments = prev[-1][2]
     
     prev.append([institution, observer, instruments])
@@ -66,7 +66,7 @@ def parse_address(address):
         try:
             date, dark_frac = parse_date(items, year)
         except:
-            #print "Skipping row {}".format(i)
+            #print("Skipping row {} = {}".format(i,row))
             continue
         dates.append(date)
         dfracs.append(dark_frac)
@@ -84,10 +84,12 @@ def parse_address(address):
 if __name__=="__main__":
     #addresses = ["https://schedule.obs.carnegiescience.edu/2017/sch2017_{:02}.html".format(num)
     #             for num in range(1,13)]
-    addresses = ["https://schedule.obs.carnegiescience.edu/2018/sch2018_{:02}.html".format(num)
-                 for num in range(1,13)]
     #addresses += ["https://schedule.obs.carnegiescience.edu/2017/sch2017_{:02}.html".format(num)
     #             for num in range(1,8)]
+    addresses = ["https://schedule.obs.carnegiescience.edu/2018/sch2018_{:02}.html".format(num)
+                 for num in range(1,13)]
+    addresses = ["https://schedule.obs.carnegiescience.edu/2019/sch2019_{:02}.html".format(num)
+                 for num in range(1,7)]
     
     dates  = []
     dfracs = []
@@ -111,3 +113,15 @@ if __name__=="__main__":
     clay  = pd.DataFrame(clay,  index=index, columns=['Institution','Observer','Instruments'])
     dupont= pd.DataFrame(dupont,index=index, columns=['Institution','Observer','Instruments'])
     swope = pd.DataFrame(swope, index=index, columns=['Institution','Observer','Instruments'])
+    
+    baade["DarkFrac"] = dfracs
+    clay["DarkFrac"] = dfracs
+
+    magellan = pd.concat([baade,clay], axis=0)
+    magellan["Telescope"] = ""
+    magellan.iloc[0:len(baade)]["Telescope"] = "Baade"
+    magellan.iloc[len(baade):]["Telescope"] = "Clay"
+
+    carnegie_ii = magellan["Institution"]=="Carnegie"
+    print(magellan[carnegie_ii]["Observer"].value_counts())
+    
