@@ -39,7 +39,10 @@ def add_line(prev, institution, observer, instruments):
     if observer == '"':
         observer = prev[-1][1]
     if '"' in instruments or u"\u201c" in instruments:
-        instruments = prev[-1][2]
+        if prev == []:
+            instruments = "[Error]"
+        else:
+            instruments = prev[-1][2]
     
     prev.append([institution, observer, instruments])
     return
@@ -82,14 +85,18 @@ def parse_address(address):
     return dates, dfracs, baade, clay, dupont, swope
 
 if __name__=="__main__":
-    #addresses = ["https://schedule.obs.carnegiescience.edu/2017/sch2017_{:02}.html".format(num)
-    #             for num in range(1,13)]
-    #addresses += ["https://schedule.obs.carnegiescience.edu/2017/sch2017_{:02}.html".format(num)
-    #             for num in range(1,8)]
-    addresses = ["https://schedule.obs.carnegiescience.edu/2018/sch2018_{:02}.html".format(num)
+    addresses = ["https://schedule.obs.carnegiescience.edu/2017/sch2017_{:02}.html".format(num)
                  for num in range(1,13)]
-    addresses = ["https://schedule.obs.carnegiescience.edu/2019/sch2019_{:02}.html".format(num)
-                 for num in range(1,7)]
+    addresses += ["https://schedule.obs.carnegiescience.edu/2018/sch2018_{:02}.html".format(num)
+                 for num in range(1,13)]
+    addresses += ["https://schedule.obs.carnegiescience.edu/2019/sch2019_{:02}.html".format(num)
+                 for num in range(1,13)]
+    addresses += ["https://schedule.obs.carnegiescience.edu/2016/sch2016_{:02}.html".format(num)
+                 for num in range(1,13)]
+    #addresses += ["https://schedule.obs.carnegiescience.edu/2015/sch2015_{:02}.html".format(num)
+    #             for num in range(1,13)]
+    #addresses = ["https://schedule.obs.carnegiescience.edu/2019/sch2019_{:02}.html".format(num)
+    #             for num in range(7,13)]
     
     dates  = []
     dfracs = []
@@ -119,9 +126,9 @@ if __name__=="__main__":
 
     magellan = pd.concat([baade,clay], axis=0)
     magellan["Telescope"] = ""
-    magellan.iloc[0:len(baade)]["Telescope"] = "Baade"
-    magellan.iloc[len(baade):]["Telescope"] = "Clay"
+    #magellan.iloc[0:len(baade),"Telescope"] = "Baade"
+    #magellan.iloc[len(baade):,"Telescope"] = "Clay"
 
-    carnegie_ii = magellan["Institution"]=="Carnegie"
-    print(magellan[carnegie_ii]["Observer"].value_counts())
+    #carnegie_ii = magellan["Institution"]=="Carnegie"
+    #print(magellan[carnegie_ii]["Observer"].value_counts())
     
