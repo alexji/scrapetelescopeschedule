@@ -5,7 +5,12 @@ from __future__ import (division, print_function, absolute_import,
                         unicode_literals)
 
 from bs4 import BeautifulSoup
-import urllib
+#try:
+#    from urllib import urlopen
+#except:
+#    from urllib.request import urlopen
+from urllib.request import urlopen
+import ssl
 import pandas as pd
 
 from datetime import datetime
@@ -48,7 +53,7 @@ def add_line(prev, institution, observer, instruments):
     return
 
 def parse_address(address):
-    r = urllib.urlopen(address).read()
+    r = urlopen(address,context=ssl._create_unverified_context()).read()
     soup = BeautifulSoup(r)
     
     ## Lists to store data
@@ -91,12 +96,18 @@ if __name__=="__main__":
                  for num in range(1,13)]
     addresses += ["https://schedule.obs.carnegiescience.edu/2019/sch2019_{:02}.html".format(num)
                  for num in range(1,13)]
-    addresses += ["https://schedule.obs.carnegiescience.edu/2016/sch2016_{:02}.html".format(num)
-                 for num in range(1,13)]
+    #addresses += ["https://schedule.obs.carnegiescience.edu/2016/sch2016_{:02}.html".format(num)
+    #             for num in range(1,13)]
     #addresses += ["https://schedule.obs.carnegiescience.edu/2015/sch2015_{:02}.html".format(num)
     #             for num in range(1,13)]
     #addresses = ["https://schedule.obs.carnegiescience.edu/2019/sch2019_{:02}.html".format(num)
+    #             for num in range(1,13)]
+    #addresses = ["https://schedule.obs.carnegiescience.edu/2020/sch2020_{:02}.html".format(num)
+    #             for num in range(1,13)]
+    #addresses += ["https://schedule.obs.carnegiescience.edu/2020/sch2020_{:02}.html".format(num)
     #             for num in range(7,13)]
+    addresses = ["https://schedule.obs.carnegiescience.edu/2021/sch2021_{:02}.html".format(num)
+                 for num in range(1,7)]
     
     dates  = []
     dfracs = []
@@ -114,7 +125,7 @@ if __name__=="__main__":
         dupont += out[4]
         swope  += out[5]
         
-    index = map(lambda x: x.iso.split()[0], dates)
+    index = list(map(lambda x: x.iso.split()[0], dates))
     
     baade = pd.DataFrame(baade, index=index, columns=['Institution','Observer','Instruments'])
     clay  = pd.DataFrame(clay,  index=index, columns=['Institution','Observer','Instruments'])
@@ -126,8 +137,8 @@ if __name__=="__main__":
 
     magellan = pd.concat([baade,clay], axis=0)
     magellan["Telescope"] = ""
-    #magellan.iloc[0:len(baade),"Telescope"] = "Baade"
-    #magellan.iloc[len(baade):,"Telescope"] = "Clay"
+    magellan["Telescope"].iloc[0:len(baade)] = "Baade"
+    magellan["Telescope"].iloc[len(baade):] = "Clay"
 
     #carnegie_ii = magellan["Institution"]=="Carnegie"
     #print(magellan[carnegie_ii]["Observer"].value_counts())
