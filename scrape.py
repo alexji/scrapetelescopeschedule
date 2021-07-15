@@ -4,6 +4,7 @@ TODO Split up multiple observers
 from __future__ import (division, print_function, absolute_import,
                         unicode_literals)
 
+import numpy as np
 from bs4 import BeautifulSoup
 #try:
 #    from urllib import urlopen
@@ -90,24 +91,21 @@ def parse_address(address):
     return dates, dfracs, baade, clay, dupont, swope
 
 if __name__=="__main__":
-    addresses = ["https://schedule.obs.carnegiescience.edu/2017/sch2017_{:02}.html".format(num)
+    addresses = []
+    addresses += ["https://schedule.obs.carnegiescience.edu/2015/sch2015_{:02}.html".format(num)
+                 for num in range(1,13)]
+    addresses += ["https://schedule.obs.carnegiescience.edu/2016/sch2016_{:02}.html".format(num)
+                 for num in range(1,13)]
+    addresses += ["https://schedule.obs.carnegiescience.edu/2017/sch2017_{:02}.html".format(num)
                  for num in range(1,13)]
     addresses += ["https://schedule.obs.carnegiescience.edu/2018/sch2018_{:02}.html".format(num)
                  for num in range(1,13)]
     addresses += ["https://schedule.obs.carnegiescience.edu/2019/sch2019_{:02}.html".format(num)
                  for num in range(1,13)]
-    #addresses += ["https://schedule.obs.carnegiescience.edu/2016/sch2016_{:02}.html".format(num)
-    #             for num in range(1,13)]
-    #addresses += ["https://schedule.obs.carnegiescience.edu/2015/sch2015_{:02}.html".format(num)
-    #             for num in range(1,13)]
-    #addresses = ["https://schedule.obs.carnegiescience.edu/2019/sch2019_{:02}.html".format(num)
-    #             for num in range(1,13)]
-    #addresses = ["https://schedule.obs.carnegiescience.edu/2020/sch2020_{:02}.html".format(num)
-    #             for num in range(1,13)]
-    #addresses += ["https://schedule.obs.carnegiescience.edu/2020/sch2020_{:02}.html".format(num)
-    #             for num in range(7,13)]
-    addresses = ["https://schedule.obs.carnegiescience.edu/2021/sch2021_{:02}.html".format(num)
-                 for num in range(1,7)]
+    addresses += ["https://schedule.obs.carnegiescience.edu/2020/sch2020_{:02}.html".format(num)
+                 for num in range(1,13)]
+    addresses += ["https://schedule.obs.carnegiescience.edu/2021/sch2021_{:02}.html".format(num)
+                 for num in range(1,13)]
     
     dates  = []
     dfracs = []
@@ -136,10 +134,24 @@ if __name__=="__main__":
     clay["DarkFrac"] = dfracs
 
     magellan = pd.concat([baade,clay], axis=0)
-    magellan["Telescope"] = ""
+    magellan["Telescope"] = "     "
     magellan["Telescope"].iloc[0:len(baade)] = "Baade"
     magellan["Telescope"].iloc[len(baade):] = "Clay"
 
+    myname = "Ji"
+    meclay = np.array([myname in x for x in clay["Observer"]])
+    mebaade = np.array([myname in x for x in baade["Observer"]])
+    medupont = np.array([myname in x for x in dupont["Observer"]])
+    
+    print("=====Clay=====")
+    print(clay[meclay])
+    
+    print("\n=====Baade=====")
+    print(baade[mebaade])
+
+    print("\n=====DuPont=====")
+    print(dupont[medupont])
     #carnegie_ii = magellan["Institution"]=="Carnegie"
     #print(magellan[carnegie_ii]["Observer"].value_counts())
+    
     
