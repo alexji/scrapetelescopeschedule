@@ -41,9 +41,19 @@ def add_line(prev, institution, observer, instruments):
 
     # Fill in quotation marks
     if institution == '"':
-        institution = prev[-1][0]
+        try:
+            institution = prev[-1][0]
+        except IndexError as e:
+            print("Error reading institution")
+            print(e)
+            institution = "error"
     if observer == '"':
-        observer = prev[-1][1]
+        try:
+            observer = prev[-1][1]
+        except IndexError as e:
+            print("Error reading observer")
+            print(e)
+            observer = "error"
     if '"' in instruments or u"\u201c" in instruments:
         if prev == []:
             instruments = "[Error]"
@@ -92,20 +102,22 @@ def parse_address(address):
 
 if __name__=="__main__":
     addresses = []
-    addresses += ["https://schedule.obs.carnegiescience.edu/2015/sch2015_{:02}.html".format(num)
-                 for num in range(1,13)]
-    addresses += ["https://schedule.obs.carnegiescience.edu/2016/sch2016_{:02}.html".format(num)
-                 for num in range(1,13)]
-    addresses += ["https://schedule.obs.carnegiescience.edu/2017/sch2017_{:02}.html".format(num)
-                 for num in range(1,13)]
-    addresses += ["https://schedule.obs.carnegiescience.edu/2018/sch2018_{:02}.html".format(num)
-                 for num in range(1,13)]
-    addresses += ["https://schedule.obs.carnegiescience.edu/2019/sch2019_{:02}.html".format(num)
-                 for num in range(1,13)]
-    addresses += ["https://schedule.obs.carnegiescience.edu/2020/sch2020_{:02}.html".format(num)
-                 for num in range(1,13)]
-    addresses += ["https://schedule.obs.carnegiescience.edu/2021/sch2021_{:02}.html".format(num)
-                 for num in range(1,13)]
+    #addresses += ["https://schedule.obs.carnegiescience.edu/2015/sch2015_{:02}.html".format(num)
+    #             for num in range(1,13)]
+    #addresses += ["https://schedule.obs.carnegiescience.edu/2016/sch2016_{:02}.html".format(num)
+    #             for num in range(1,13)]
+    #addresses += ["https://schedule.obs.carnegiescience.edu/2017/sch2017_{:02}.html".format(num)
+    #             for num in range(1,13)]
+    #addresses += ["https://schedule.obs.carnegiescience.edu/2018/sch2018_{:02}.html".format(num)
+    #             for num in range(1,13)]
+    #addresses += ["https://schedule.obs.carnegiescience.edu/2019/sch2019_{:02}.html".format(num)
+    #             for num in range(1,13)]
+    #addresses += ["https://schedule.obs.carnegiescience.edu/2020/sch2020_{:02}.html".format(num)
+    #             for num in range(1,13)]
+    #addresses += ["https://schedule.obs.carnegiescience.edu/2021/sch2021_{:02}.html".format(num)
+    #             for num in range(1,13)]
+    addresses += ["https://schedule.obs.carnegiescience.edu/2022/sch2022_{:02}.html".format(num)
+                 for num in range(1,7)]
     
     dates  = []
     dfracs = []
