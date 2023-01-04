@@ -29,9 +29,9 @@ def parse_date(items, year):
     return dt, dark_frac
 
 def add_line(prev, institution, observer, instruments):
-    institution = institution.get_text()
-    observer = observer.get_text()
-    instruments = [x.get_text() for x in instruments]
+    institution = institution.get_text().strip()
+    observer = observer.get_text().strip()
+    instruments = [x.get_text().strip() for x in instruments]
     while True:
         try:
             instruments.remove('')
@@ -79,7 +79,21 @@ def parse_address(address):
     rows = soup.find_all("tr")
     year = int(rows[0].find_all("td")[0].get_text())
     N = len(rows[0].find_all("td"))
-    clay_has_cassegrain = True if N == 21 else False
+    print(address,N)
+    N_expected = 20
+    
+    # Hardcode May 2023 for LLAMAS
+    if "2023_05" in address:
+        print("Detected 2023_05, assuming LLAMAS")
+        baade_has_fp2 = True
+    else:
+        baade_has_fp2 = False
+    
+    if N == 21 and not baade_has_fp2:
+        clay_has_cassegrain = True
+    else:
+        clay_has_cassegrain = False
+    
     for i,row in enumerate(rows):
         items = row.find_all("td")
         try:
@@ -89,34 +103,41 @@ def parse_address(address):
             continue
         dates.append(date)
         dfracs.append(dark_frac)
-        add_line(baade, items[3], items[4], items[5:9])
-        if clay_has_cassegrain:
-            add_line(clay,  items[10], items[11],items[12:15])
-            add_line(dupont,items[16], items[16],[items[17]])
-            add_line(swope, items[19], items[19],[items[20]])
+        claystart = 0
+        if baade_has_fp2:
+            add_line(baade, items[3], items[4], items[5:10])
+            claystart = 1
         else:
-            add_line(clay,  items[10], items[11],items[12:14])
-            add_line(dupont,items[15], items[15],[items[16]])
-            add_line(swope, items[18], items[18],[items[19]])
+            add_line(baade, items[3], items[4], items[5:9])
+        if clay_has_cassegrain:
+            add_line(clay,  items[claystart+10], items[claystart+11],items[claystart+12:claystart+15])
+            add_line(dupont,items[claystart+16], items[claystart+16],[items[claystart+17]])
+            add_line(swope, items[claystart+19], items[claystart+19],[items[claystart+20]])
+        else:
+            add_line(clay,  items[claystart+10], items[claystart+11],items[claystart+12:claystart+14])
+            add_line(dupont,items[claystart+15], items[claystart+15],[items[claystart+16]])
+            add_line(swope, items[claystart+18], items[claystart+18],[items[claystart+19]])
     return dates, dfracs, baade, clay, dupont, swope
 
 if __name__=="__main__":
     addresses = []
-    #addresses += ["https://schedule.obs.carnegiescience.edu/2015/sch2015_{:02}.html".format(num)
-    #             for num in range(1,13)]
-    #addresses += ["https://schedule.obs.carnegiescience.edu/2016/sch2016_{:02}.html".format(num)
-    #             for num in range(1,13)]
-    #addresses += ["https://schedule.obs.carnegiescience.edu/2017/sch2017_{:02}.html".format(num)
-    #             for num in range(1,13)]
-    #addresses += ["https://schedule.obs.carnegiescience.edu/2018/sch2018_{:02}.html".format(num)
-    #             for num in range(1,13)]
-    #addresses += ["https://schedule.obs.carnegiescience.edu/2019/sch2019_{:02}.html".format(num)
-    #             for num in range(1,13)]
-    #addresses += ["https://schedule.obs.carnegiescience.edu/2020/sch2020_{:02}.html".format(num)
-    #             for num in range(1,13)]
-    #addresses += ["https://schedule.obs.carnegiescience.edu/2021/sch2021_{:02}.html".format(num)
-    #             for num in range(1,13)]
+    addresses += ["https://schedule.obs.carnegiescience.edu/2015/sch2015_{:02}.html".format(num)
+                 for num in range(1,13)]
+    addresses += ["https://schedule.obs.carnegiescience.edu/2016/sch2016_{:02}.html".format(num)
+                 for num in range(1,13)]
+    addresses += ["https://schedule.obs.carnegiescience.edu/2017/sch2017_{:02}.html".format(num)
+                 for num in range(1,13)]
+    addresses += ["https://schedule.obs.carnegiescience.edu/2018/sch2018_{:02}.html".format(num)
+                 for num in range(1,13)]
+    addresses += ["https://schedule.obs.carnegiescience.edu/2019/sch2019_{:02}.html".format(num)
+                 for num in range(1,13)]
+    addresses += ["https://schedule.obs.carnegiescience.edu/2020/sch2020_{:02}.html".format(num)
+                 for num in range(1,13)]
+    addresses += ["https://schedule.obs.carnegiescience.edu/2021/sch2021_{:02}.html".format(num)
+                 for num in range(1,13)]
     addresses += ["https://schedule.obs.carnegiescience.edu/2022/sch2022_{:02}.html".format(num)
+                 for num in range(1,13)]
+    addresses += ["https://schedule.obs.carnegiescience.edu/2023/sch2023_{:02}.html".format(num)
                  for num in range(1,7)]
     
     dates  = []
